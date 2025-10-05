@@ -30,14 +30,14 @@ export function Leaderboard() {
   if (loading) {
     return (
       <div style={{ textAlign: 'center', padding: '2rem' }}>
-        <div className="loading">Chargement du classement...</div>
+        <div className="loading">Loading leaderboard...</div>
       </div>
     );
   }
 
   return (
     <div>
-      <h3 style={{ marginBottom: '1rem', color: '#ffd700' }}>🏆 Classement</h3>
+      <h3 style={{ marginBottom: '1rem', color: '#ffd700' }}>🏆 Leaderboard</h3>
 
       {myRank && (
         <div
@@ -50,9 +50,9 @@ export function Leaderboard() {
             fontWeight: 'bold',
           }}
         >
-          <div>Votre rang: #{myRank.rank}</div>
+          <div>Your rank: #{myRank.rank}</div>
           <div style={{ fontSize: '0.9rem', marginTop: '0.3rem' }}>
-            Score: {myRank.high_score} | Récoltes: {myRank.total_harvests}
+            Score: {myRank.high_score} | Harvests: {myRank.total_harvests}
           </div>
         </div>
       )}
@@ -87,7 +87,7 @@ export function Leaderboard() {
             </div>
             <div style={{ textAlign: 'right', fontSize: '0.85rem' }}>
               <div>{entry.high_score.toLocaleString()} pts</div>
-              <div style={{ opacity: 0.8 }}>🌾 {entry.total_harvests} récoltes</div>
+              <div style={{ opacity: 0.8 }}>🌾 {entry.total_harvests} harvests</div>
             </div>
           </div>
         ))}

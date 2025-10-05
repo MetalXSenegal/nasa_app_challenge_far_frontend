@@ -113,7 +113,7 @@ export function AuthModal({ onClose, onSuccess }: AuthModalProps) {
               disabled={loading}
               style={{ marginTop: '0.5rem' }}
             >
-              {loading ? 'Loading...' : isLogin ? 'Login' : 'Sign Up'}
+              {loading ? 'Loading...' : isLogin ? 'Login' : "Sign Up"}
             </button>
           </div>
         </form>
@@ -141,7 +141,7 @@ export function AuthModal({ onClose, onSuccess }: AuthModalProps) {
               fontSize: '0.9rem',
             }}
           >
-            {isLogin ? 'Sign Up' : 'Login'}
+            {isLogin ? "Sign Up" : 'Login'}
           </button>
         </div>
 

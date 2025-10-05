@@ -28,14 +28,14 @@ export function LandingPage({ onStart }: LandingPageProps) {
         </h1>
 
         <p className="hero-description">
-          Master sustainable agriculture using real NASA satellite data and climate insights.
+          Master sustainable agriculture using NASA satellite data and climate analysis.
           <br />
           Learn how space technology helps farmers optimize their crops.
         </p>
 
         <button className="cta-button" onClick={() => setShowAuthModal(true)}>
           <span>🚀</span>
-          Start Your Farm Journey
+          Start Your Farming Adventure
         </button>
 
         <div className="hero-stats">
@@ -63,7 +63,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
             <div className="feature-icon">🌱</div>
             <h3>Plant Crops</h3>
             <p>
-              Choose from wheat, corn, soybeans, rice, tomatoes, and potatoes.
+              Choose from wheat, corn, soybean, rice, tomatoes and potatoes.
               Each crop has different requirements and yields.
             </p>
           </div>
@@ -72,7 +72,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
             <div className="feature-icon">🛰️</div>
             <h3>NASA Satellite Data</h3>
             <p>
-              Use real-time weather data, temperature maps, and soil moisture
+              Use real-time weather data, temperature maps and soil moisture
               from NASA's Meteomatics API to optimize your farming decisions.
             </p>
           </div>
@@ -81,7 +81,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
             <div className="feature-icon">💧</div>
             <h3>Manage Resources</h3>
             <p>
-              Balance water, fertilizer, and budget. Weather conditions impact
+              Balance water, fertilizer and budget. Weather conditions impact
               your crops - adapt your strategy for maximum yield.
             </p>
           </div>
@@ -90,7 +90,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
             <div className="feature-icon">📊</div>
             <h3>Track & Optimize</h3>
             <p>
-              Monitor crop health, growth stages, and soil conditions.
+              Monitor crop health, growth stages and soil conditions.
               Make data-driven decisions to maximize your harvest.
             </p>
           </div>
@@ -99,8 +99,8 @@ export function LandingPage({ onStart }: LandingPageProps) {
             <div className="feature-icon">🏆</div>
             <h3>Compete</h3>
             <p>
-              Climb the leaderboard by achieving the highest score.
-              Save your progress and compare with other farmers.
+              Climb the leaderboard by achieving the best score.
+              Save your progress and compare yourself with other farmers.
             </p>
           </div>
 
@@ -132,7 +132,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
             <div className="mechanic-number">2</div>
             <div className="mechanic-text">
               <h4>Monitor Conditions</h4>
-              <p>Watch the NASA satellite view for temperature and precipitation. Check soil moisture levels.</p>
+              <p>Check NASA satellite view for temperature and precipitation. Monitor soil moisture.</p>
             </div>
           </div>
 
@@ -148,7 +148,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
             <div className="mechanic-number">4</div>
             <div className="mechanic-text">
               <h4>Harvest & Profit</h4>
-              <p>Harvest at 90%+ growth. Higher health = better yield. Earn $150-$250 per crop based on type and health.</p>
+              <p>Harvest at 90%+ growth. More health = better yield. Earn $150-250 per crop based on type and health.</p>
             </div>
           </div>
         </div>
@@ -159,7 +159,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
             <li>Rain automatically waters crops - save your water budget!</li>
             <li>Extreme temperatures (&gt;30°C or &lt;10°C) damage crops</li>
             <li>Healthy crops (80%+ health, 50%+ growth) earn bonus points</li>
-            <li>Buy resources in the shop when you're running low</li>
+            <li>Buy resources in the shop when you run low</li>
             <li>Auto-save happens every 30 seconds when logged in</li>
           </ul>
         </div>
@@ -171,15 +171,15 @@ export function LandingPage({ onStart }: LandingPageProps) {
         <div className="impact-grid">
           <div className="impact-card">
             <h4>🛰️ Meteomatics API</h4>
-            <p>Real-time weather data including temperature, precipitation, humidity, wind speed, and soil moisture.</p>
+            <p>Real-time weather data including temperature, precipitation, humidity, wind speed and soil moisture.</p>
           </div>
           <div className="impact-card">
             <h4>🌡️ Climate Monitoring</h4>
             <p>Satellite imagery helps farmers predict weather patterns and optimize irrigation schedules.</p>
           </div>
           <div className="impact-card">
-            <h4>🌾 Sustainable Farming</h4>
-            <p>Learn how data-driven agriculture reduces water waste and maximizes crop yields.</p>
+            <h4>🌾 Sustainable Agriculture</h4>
+            <p>Learn how data-driven farming reduces water waste and maximizes yields.</p>
           </div>
         </div>
       </section>
@@ -190,13 +190,13 @@ export function LandingPage({ onStart }: LandingPageProps) {
         <p>Join the challenge and see how NASA technology revolutionizes agriculture!</p>
         <button className="cta-button large" onClick={() => setShowAuthModal(true)}>
           <span>🚀</span>
-          Get Started Now
+          Start Now
         </button>
       </section>
 
       {/* Footer */}
       <footer className="landing-footer">
-        <p>Created for NASA Space Apps Challenge 2024 | 24-Hour Hackathon</p>
+        <p>Created for NASA Space Apps Challenge 2024 | 24 Hour Hackathon</p>
         <p>Using real NASA satellite data from Meteomatics API</p>
       </footer>
 

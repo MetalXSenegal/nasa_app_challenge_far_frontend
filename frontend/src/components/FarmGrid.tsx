@@ -14,7 +14,7 @@ interface FarmGridProps {
 export function FarmGrid({ crops, onSelectCrop, onPlantSlot, selectedCropId, maxSlots = 12 }: FarmGridProps) {
   const [hoveredSlot, setHoveredSlot] = useState<number | null>(null);
 
-  // Créer un tableau de slots avec les cultures
+  // Create slots array with crops
   const slots = Array.from({ length: maxSlots }, (_, index) => {
     const crop = crops.find(c => c.id === `slot-${index}`);
     return { position: index, crop };
@@ -81,7 +81,7 @@ export function FarmGrid({ crops, onSelectCrop, onPlantSlot, selectedCropId, max
                   {crop.health < 40 && <span className="alert health-low">⚠️</span>}
                 </div>
 
-                {/* Tooltip avec infos détaillées */}
+                {/* Tooltip with detailed info */}
                 <div className="crop-tooltip">
                   <div className="tooltip-header">{CROP_DATA[crop.type].name}</div>
                   <div className="tooltip-stats">

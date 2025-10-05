@@ -71,8 +71,8 @@ DB_PASSWORD=votre_mot_de_passe
 PORT=5000
 JWT_SECRET=votre_secret_jwt
 
-METEOMATICS_USERNAME=cisse_mouhamadoudiouf
-METEOMATICS_PASSWORD=NwA5649eqTKWWdlFBlyd
+METEOMATICS_USERNAME=your_user_name
+METEOMATICS_PASSWORD=your_secret
 ```
 
 ✅ Frontend: http://localhost:5173

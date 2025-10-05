@@ -23,10 +23,10 @@ export function CropCard({ crop, onClick }: CropCardProps) {
   };
 
   const getGrowthStage = (stage: number) => {
-    if (stage < 25) return 'Semis';
-    if (stage < 50) return 'Croissance';
-    if (stage < 75) return 'Maturation';
-    return 'Prêt à récolter';
+    if (stage < 25) return 'Seedling';
+    if (stage < 50) return 'Growing';
+    if (stage < 75) return 'Maturing';
+    return 'Ready to Harvest';
   };
 
   return (
@@ -53,9 +53,9 @@ export function CropCard({ crop, onClick }: CropCardProps) {
             </div>
           </div>
           <div style={{ marginTop: '0.5rem' }}>
-            Santé: {Math.round(crop.health)}%
+            Health: {Math.round(crop.health)}%
           </div>
-          <div>💧 Eau: {Math.round(crop.waterLevel)}%</div>
+          <div>💧 Water: {Math.round(crop.waterLevel)}%</div>
         </div>
       </div>
     </div>

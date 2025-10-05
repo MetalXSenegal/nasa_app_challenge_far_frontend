@@ -15,21 +15,21 @@ export function LocationSelector({ onSelect }: LocationSelectorProps) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Charger les images satellites et données météo pour toutes les localités
+    // Load satellite images and weather data for all locations
     const loadLocationData = async () => {
       const images: Record<string, string> = {};
       const weather: Record<string, any> = {};
 
       for (const location of AVAILABLE_LOCATIONS) {
         try {
-          // Charger l'image satellite
+          // Load satellite image
           const imageUrl = await getSatelliteImage({
             lat: location.lat,
             lon: location.lon
           });
           images[location.id] = imageUrl;
 
-          // Charger les données météo
+          // Load weather data
           const weatherInfo = await getWeatherData(
             location.lat,
             location.lon
@@ -103,7 +103,7 @@ export function LocationSelector({ onSelect }: LocationSelectorProps) {
                 }`}
                 onClick={() => setSelectedLocation(location)}
               >
-                {/* Image satellite */}
+                {/* Satellite image */}
                 <div className="location-image">
                   {satelliteImages[location.id] ? (
                     <img
@@ -119,7 +119,7 @@ export function LocationSelector({ onSelect }: LocationSelectorProps) {
                   </div>
                 </div>
 
-                {/* Informations */}
+                {/* Information */}
                 <div className="location-info">
                   <h3>{location.name}</h3>
                   <p className="country">📍 {location.country}</p>
@@ -140,7 +140,7 @@ export function LocationSelector({ onSelect }: LocationSelectorProps) {
                     </div>
                   </div>
 
-                  {/* Données météo en temps réel */}
+                  {/* Real-time weather data */}
                   {weatherData[location.id] && (
                     <div className="weather-preview">
                       <div className="weather-item">

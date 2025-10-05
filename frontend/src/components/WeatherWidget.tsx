@@ -26,7 +26,7 @@ export function WeatherWidget({ lat, lon, locationName }: WeatherWidgetProps) {
           forecast: [],
         });
       } catch (error) {
-        console.error('Erreur météo:', error);
+        console.error('Weather error:', error);
       } finally {
         setLoading(false);
       }
@@ -37,7 +37,7 @@ export function WeatherWidget({ lat, lon, locationName }: WeatherWidgetProps) {
         const imageUrl = await getSatelliteImage({ lat, lon });
         setSatelliteImage(imageUrl);
       } catch (error) {
-        console.error('Erreur image satellite:', error);
+        console.error('Satellite image error:', error);
       }
     };
 
@@ -49,11 +49,11 @@ export function WeatherWidget({ lat, lon, locationName }: WeatherWidgetProps) {
   }, [lat, lon]);
 
   if (loading) {
-    return <div className="weather-widget">Chargement de la météo...</div>;
+    return <div className="weather-widget">Loading weather...</div>;
   }
 
   if (!weather) {
-    return <div className="weather-widget">Météo indisponible</div>;
+    return <div className="weather-widget">Weather unavailable</div>;
   }
 
   const getWeatherIcon = () => {
@@ -64,9 +64,9 @@ export function WeatherWidget({ lat, lon, locationName }: WeatherWidgetProps) {
 
   return (
     <div className="weather-widget">
-      <h3>🛰️ {locationName || 'Météo actuelle'}</h3>
+      <h3>🛰️ {locationName || 'Current Weather'}</h3>
 
-      {/* Mini carte satellite */}
+      {/* Mini satellite map */}
       {satelliteImage && (
         <div className="satellite-mini-map">
           <img src={satelliteImage} alt="Satellite view" />
@@ -81,10 +81,10 @@ export function WeatherWidget({ lat, lon, locationName }: WeatherWidgetProps) {
         <div className="weather-temp">{Math.round(weather.temperature)}°C</div>
       </div>
       <div className="weather-details">
-        <div>💧 Humidité: {Math.round(weather.humidity)}%</div>
-        <div>🌊 Sol: {Math.round(weather.soilMoisture * 100)}%</div>
-        <div>🌧️ Pluie: {weather.precipitation.toFixed(1)}mm</div>
-        <div>💨 Vent: {weather.windSpeed.toFixed(1)}m/s</div>
+        <div>💧 Humidity: {Math.round(weather.humidity)}%</div>
+        <div>🌊 Soil: {Math.round(weather.soilMoisture * 100)}%</div>
+        <div>🌧️ Rain: {weather.precipitation.toFixed(1)}mm</div>
+        <div>💨 Wind: {weather.windSpeed.toFixed(1)}m/s</div>
       </div>
     </div>
   );

@@ -6,7 +6,6 @@ import { FarmGrid } from './components/FarmGrid';
 import { LocationSelector } from './components/LocationSelector';
 import { DayClock } from './components/DayClock';
 import { GameOver } from './components/GameOver';
-import { CropCard } from './components/CropCard';
 import { ResourcesPanel } from './components/ResourcesPanel';
 import { AuthModal } from './components/AuthModal';
 import { Leaderboard } from './components/Leaderboard';
