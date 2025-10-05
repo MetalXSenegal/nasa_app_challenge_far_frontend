@@ -8,7 +8,8 @@
       "Bash(then cat .gitignore)",
       "Bash(else echo \"No .gitignore found\")",
       "Bash(fi)",
-      "Read(//c/Users/Acer_M/Documents/devellopement/metalx/nasa_app_backend/**)"
+      "Read(//c/Users/Acer_M/Documents/devellopement/metalx/nasa_app_backend/**)",
+      "Bash(mkdir:*)"
     ],
     "deny": [],
     "ask": []
