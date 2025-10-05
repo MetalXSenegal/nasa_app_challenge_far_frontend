@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
-import { getWeatherData } from '../services/meteomatics';
+import { getWeatherData, getSatelliteImage } from '../services/meteomatics';
 import type { WeatherCondition } from '../types/game';
 
 interface WeatherWidgetProps {
   lat: number;
   lon: number;
+  locationName?: string;
 }
 
-export function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
+export function WeatherWidget({ lat, lon, locationName }: WeatherWidgetProps) {
   const [weather, setWeather] = useState<WeatherCondition | null>(null);
+  const [satelliteImage, setSatelliteImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -30,7 +32,17 @@ export function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
       }
     };
 
+    const fetchSatellite = async () => {
+      try {
+        const imageUrl = await getSatelliteImage({ lat, lon });
+        setSatelliteImage(imageUrl);
+      } catch (error) {
+        console.error('Erreur image satellite:', error);
+      }
+    };
+
     fetchWeather();
+    fetchSatellite();
     const interval = setInterval(fetchWeather, 300000); // Refresh every 5 minutes
 
     return () => clearInterval(interval);
@@ -52,7 +64,18 @@ export function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
 
   return (
     <div className="weather-widget">
-      <h3>Météo actuelle</h3>
+      <h3>🛰️ {locationName || 'Météo actuelle'}</h3>
+
+      {/* Mini carte satellite */}
+      {satelliteImage && (
+        <div className="satellite-mini-map">
+          <img src={satelliteImage} alt="Satellite view" />
+          <div className="map-overlay">
+            <span className="map-label">Live Satellite View</span>
+          </div>
+        </div>
+      )}
+
       <div className="weather-current">
         <div className="weather-icon">{getWeatherIcon()}</div>
         <div className="weather-temp">{Math.round(weather.temperature)}°C</div>

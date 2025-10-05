@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "WebFetch(domain:swagger-ui.meteomatics.com)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []

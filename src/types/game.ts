@@ -1,14 +1,38 @@
+export interface Location {
+  id: string;
+  name: string;
+  country: string;
+  lat: number;
+  lon: number;
+  climate: 'temperate' | 'arid' | 'tropical' | 'cold' | 'mediterranean';
+  difficulty: 'easy' | 'medium' | 'hard' | 'extreme';
+  description: string;
+}
+
 export interface Farm {
   id: string;
   name: string;
-  location: {
-    lat: number;
-    lon: number;
-  };
+  location: Location;
   crops: Crop[];
   livestock: Livestock[];
   resources: Resources;
   score: number;
+  environmentalScore: number; // 0-100% amélioration de l'environnement
+  maxSlots: number; // Nombre max d'emplacements (commence à 6, achetable jusqu'à 24)
+}
+
+export interface CropCharacteristics {
+  name: string;
+  emoji: string;
+  environmentalContribution: number; // Contribution au score environnemental (1-10)
+  climateResistance: {
+    arid: number; // 0-1 (résistance à la sécheresse)
+    cold: number; // 0-1 (résistance au froid)
+    heat: number; // 0-1 (résistance à la chaleur)
+    humidity: number; // 0-1 (résistance à l'humidité)
+  };
+  baseValue: number;
+  growthSpeed: number; // 1-3 (vitesse de croissance)
 }
 
 export interface Crop {
@@ -22,7 +46,7 @@ export interface Crop {
   expectedYield: number;
 }
 
-export type CropType = 'wheat' | 'corn' | 'soybean' | 'rice' | 'tomato' | 'potato';
+export type CropType = 'wheat' | 'corn' | 'soybean' | 'rice' | 'tomato' | 'potato' | 'cactus' | 'palm' | 'bamboo';
 
 export interface Livestock {
   id: string;

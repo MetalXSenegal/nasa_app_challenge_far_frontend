@@ -29,7 +29,7 @@ export function AuthModal({ onClose, onSuccess }: AuthModalProps) {
       }
       onSuccess();
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Une erreur est survenue');
+      setError(err.response?.data?.error || 'An error occurred');
     } finally {
       setLoading(false);
     }
@@ -38,7 +38,7 @@ export function AuthModal({ onClose, onSuccess }: AuthModalProps) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <h2>{isLogin ? '🔐 Connexion' : '📝 Inscription'}</h2>
+        <h2>{isLogin ? '🔐 Login' : '📝 Sign Up'}</h2>
 
         {error && (
           <div
@@ -59,7 +59,7 @@ export function AuthModal({ onClose, onSuccess }: AuthModalProps) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <input
               type="text"
-              placeholder="Nom d'utilisateur"
+              placeholder="Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
@@ -93,7 +93,7 @@ export function AuthModal({ onClose, onSuccess }: AuthModalProps) {
 
             <input
               type="password"
-              placeholder="Mot de passe"
+              placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -113,7 +113,7 @@ export function AuthModal({ onClose, onSuccess }: AuthModalProps) {
               disabled={loading}
               style={{ marginTop: '0.5rem' }}
             >
-              {loading ? 'Chargement...' : isLogin ? 'Se connecter' : "S'inscrire"}
+              {loading ? 'Loading...' : isLogin ? 'Login' : 'Sign Up'}
             </button>
           </div>
         </form>
@@ -126,7 +126,7 @@ export function AuthModal({ onClose, onSuccess }: AuthModalProps) {
             opacity: 0.8,
           }}
         >
-          {isLogin ? "Pas encore de compte ? " : "Déjà un compte ? "}
+          {isLogin ? "Don't have an account? " : "Already have an account? "}
           <button
             onClick={() => {
               setIsLogin(!isLogin);
@@ -141,13 +141,13 @@ export function AuthModal({ onClose, onSuccess }: AuthModalProps) {
               fontSize: '0.9rem',
             }}
           >
-            {isLogin ? "S'inscrire" : 'Se connecter'}
+            {isLogin ? 'Sign Up' : 'Login'}
           </button>
         </div>
 
         <div className="modal-buttons">
           <button className="btn btn-secondary" onClick={onClose}>
-            Annuler
+            Cancel
           </button>
         </div>
       </div>

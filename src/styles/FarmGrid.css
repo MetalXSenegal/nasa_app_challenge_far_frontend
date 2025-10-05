@@ -1,0 +1,337 @@
+.farm-grid-container {
+  width: 100%;
+}
+
+.farm-grid-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.farm-grid-header h3 {
+  font-size: 1.5rem;
+  color: var(--nasa-accent);
+  margin: 0;
+}
+
+.farm-stats {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin: 0;
+}
+
+.farm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.farm-slot {
+  aspect-ratio: 1;
+  background: linear-gradient(135deg, rgba(11, 61, 145, 0.2) 0%, rgba(0, 29, 61, 0.2) 100%);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.farm-slot.empty {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.2) 100%);
+  border-style: dashed;
+}
+
+.farm-slot.empty:hover {
+  background: linear-gradient(135deg, rgba(67, 233, 123, 0.2) 0%, rgba(56, 249, 215, 0.2) 100%);
+  border-color: #43e97b;
+  transform: scale(1.05);
+}
+
+.farm-slot.planted:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.farm-slot.selected {
+  border-color: var(--nasa-red);
+  box-shadow: 0 0 20px rgba(252, 61, 33, 0.6);
+}
+
+/* Empty Slot */
+.empty-slot-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0.6;
+}
+
+.plant-icon {
+  font-size: 3rem;
+}
+
+.plant-text {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* Crop Icon */
+.crop-icon {
+  font-size: 4rem;
+  margin-bottom: 0.5rem;
+  animation: sway 3s ease-in-out infinite;
+}
+
+.crop-icon.seedling {
+  font-size: 2.5rem;
+  filter: brightness(0.8);
+}
+
+.crop-icon.growing {
+  font-size: 3rem;
+  filter: brightness(0.9);
+}
+
+.crop-icon.maturing {
+  font-size: 3.5rem;
+}
+
+.crop-icon.ready {
+  font-size: 4rem;
+  animation: pulse 2s ease-in-out infinite, sway 3s ease-in-out infinite;
+}
+
+@keyframes sway {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.2); }
+}
+
+/* Health Bar */
+.health-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.health-fill {
+  height: 100%;
+  transition: width 0.5s ease;
+  border-radius: 3px;
+}
+
+.health-excellent .health-fill {
+  background: linear-gradient(90deg, #43e97b, #38f9d7);
+}
+
+.health-good .health-fill {
+  background: linear-gradient(90deg, #f5af19, #f12711);
+}
+
+.health-warning .health-fill {
+  background: linear-gradient(90deg, #ff9500, #ff5e3a);
+}
+
+.health-critical .health-fill {
+  background: linear-gradient(90deg, #ff0000, #c40000);
+  animation: blink 1s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Growth Indicator */
+.growth-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.growth-text {
+  color: var(--nasa-accent);
+}
+
+.ready-badge {
+  background: linear-gradient(135deg, #43e97b, #38f9d7);
+  color: #1a1a1a;
+  padding: 0.2rem 0.5rem;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+/* Status Indicators */
+.status-indicators {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  gap: 0.3rem;
+}
+
+.alert {
+  font-size: 1.2rem;
+  animation: shake 0.5s ease-in-out infinite;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+/* Slot Number */
+.slot-number {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 0.5rem;
+  font-size: 0.7rem;
+  opacity: 0.5;
+  font-weight: 600;
+}
+
+/* Crop Tooltip */
+.crop-tooltip {
+  position: absolute;
+  bottom: 105%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(30, 30, 30, 0.95) 100%);
+  backdrop-filter: blur(10px);
+  padding: 0.75rem;
+  border-radius: 10px;
+  border: 2px solid rgba(67, 233, 123, 0.5);
+  min-width: 200px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 1000;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+
+.farm-slot.planted:hover .crop-tooltip {
+  opacity: 1;
+}
+
+.tooltip-header {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #43e97b;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(67, 233, 123, 0.3);
+  padding-bottom: 0.3rem;
+}
+
+.tooltip-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.tooltip-stats > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+/* Legend */
+.farm-legend {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.legend-icon {
+  font-size: 1.2rem;
+}
+
+.legend-icon.health-excellent {
+  color: #43e97b;
+}
+
+.legend-icon.health-good {
+  color: #f5af19;
+}
+
+.legend-icon.health-warning {
+  color: #ff9500;
+}
+
+.legend-icon.health-critical {
+  color: #ff0000;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .farm-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+  }
+
+  .crop-icon {
+    font-size: 3rem;
+  }
+
+  .farm-legend {
+    gap: 1rem;
+  }
+
+  .legend-item {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .farm-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  .crop-icon {
+    font-size: 2.5rem;
+  }
+
+  .plant-icon {
+    font-size: 2rem;
+  }
+}

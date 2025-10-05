@@ -1,0 +1,74 @@
+.day-clock-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.day-clock {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.clock-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+}
+
+.clock-icon {
+  font-size: 2rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.clock-hour {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #ffd700;
+}
+
+.clock-label {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .day-clock {
+    width: 100px;
+    height: 100px;
+  }
+
+  .day-clock svg {
+    width: 100px;
+    height: 100px;
+  }
+
+  .clock-icon {
+    font-size: 1.5rem;
+  }
+
+  .clock-hour {
+    font-size: 0.9rem;
+  }
+
+  .clock-label {
+    font-size: 0.65rem;
+  }
+}

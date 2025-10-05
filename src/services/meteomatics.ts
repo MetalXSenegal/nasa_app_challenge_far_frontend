@@ -60,23 +60,99 @@ export const getWeatherData = async (lat: number, lon: number): Promise<WeatherD
 
 /**
  * Récupère une image satellite pour visualisation
+ * Format grille requis: latMax,lonMin_latMin,lonMax:widthxheight
+ * Avec fallback sur plusieurs tentatives et image par défaut
  */
 export const getSatelliteImage = async (params: SatelliteImageParams): Promise<string> => {
-  const { lat, lon, parameter = 'satellite_image:idx' } = params;
-  const date = params.date || new Date();
-  const dateStr = date.toISOString();
+  const { lat, lon, parameter = 'sat_rgb:idx' } = params;
 
-  try {
-    const response = await meteomaticsClient.get(
-      `/${dateStr}/${parameter}/${lat},${lon}/png`,
-      { responseType: 'blob' }
-    );
+  // Créer une grille autour du point (environ 2° de chaque côté)
+  const gridSize = 2.0;
+  const latMax = lat + gridSize;
+  const latMin = lat - gridSize;
+  const lonMin = lon - gridSize;
+  const lonMax = lon + gridSize;
 
-    return URL.createObjectURL(response.data);
-  } catch (error) {
-    console.error('Erreur lors de la récupération de l\'image satellite:', error);
-    throw error;
+  // Format: latMax,lonMin_latMin,lonMax:widthxheight
+  const gridCoordinates = `${latMax},${lonMin}_${latMin},${lonMax}:600x400`;
+
+  // Essayer plusieurs dates dans le passé (1h, 3h, 6h, 12h, 24h)
+  const timeOffsets = [
+    60 * 60 * 1000,      // -1 heure
+    3 * 60 * 60 * 1000,  // -3 heures
+    6 * 60 * 60 * 1000,  // -6 heures
+    12 * 60 * 60 * 1000, // -12 heures
+    24 * 60 * 60 * 1000, // -24 heures
+  ];
+
+  const now = new Date();
+
+  // Essayer avec différentes dates
+  for (const offset of timeOffsets) {
+    try {
+      const pastDate = new Date(now.getTime() - offset);
+      const dateStr = pastDate.toISOString();
+
+      const response = await meteomaticsClient.get(
+        `/${dateStr}/${parameter}/${gridCoordinates}/png`,
+        { responseType: 'blob' }
+      );
+
+      return URL.createObjectURL(response.data);
+    } catch (error) {
+      // Continue vers la prochaine tentative
+      continue;
+    }
   }
+
+  // Fallback: retourner une image générée (gradient basé sur les coordonnées)
+  console.log('Toutes les tentatives ont échoué, utilisation du fallback');
+  return generateFallbackImage(lat, lon);
+};
+
+/**
+ * Génère une image de fallback avec un gradient basé sur les coordonnées
+ */
+const generateFallbackImage = (lat: number, lon: number): string => {
+  const canvas = document.createElement('canvas');
+  canvas.width = 600;
+  canvas.height = 400;
+  const ctx = canvas.getContext('2d');
+
+  if (!ctx) return '';
+
+  // Gradient basé sur la latitude (bleu pour pôles, vert/jaune pour équateur)
+  const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+
+  if (Math.abs(lat) > 60) {
+    // Zones polaires - bleu/blanc
+    gradient.addColorStop(0, '#e0f2ff');
+    gradient.addColorStop(0.5, '#7dd3fc');
+    gradient.addColorStop(1, '#0369a1');
+  } else if (Math.abs(lat) < 23) {
+    // Zones tropicales - vert/brun
+    gradient.addColorStop(0, '#fef3c7');
+    gradient.addColorStop(0.5, '#86efac');
+    gradient.addColorStop(1, '#166534');
+  } else {
+    // Zones tempérées - vert/bleu
+    gradient.addColorStop(0, '#bae6fd');
+    gradient.addColorStop(0.5, '#4ade80');
+    gradient.addColorStop(1, '#0f766e');
+  }
+
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 600, 400);
+
+  // Ajouter du texte
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+  ctx.font = 'bold 20px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText('Satellite View', 300, 200);
+  ctx.font = '16px Arial';
+  ctx.fillText(`${lat.toFixed(2)}°, ${lon.toFixed(2)}°`, 300, 230);
+
+  return canvas.toDataURL();
 };
 
 /**

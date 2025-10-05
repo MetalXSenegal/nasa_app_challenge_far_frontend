@@ -1,32 +1,33 @@
 import { useState, useEffect } from 'react';
-import type { GameState, Farm, Crop, FarmAction, CropType } from '../types/game';
+import type { GameState, Farm, Crop, FarmAction, CropType, Location } from '../types/game';
+import { CROP_DATA } from '../data/crops';
 
-const INITIAL_FARM: Farm = {
+const createInitialFarm = (location: Location): Farm => ({
   id: '1',
-  name: 'Ma Ferme NASA',
-  location: {
-    lat: 40.7128,
-    lon: -74.0060,
-  },
+  name: `${location.name} Restoration Project`,
+  location,
   crops: [],
   livestock: [],
   resources: {
     water: 1000,
     fertilizer: 50,
-    seeds: 10,
+    seeds: 5,
     feed: 100,
-    money: 5000,
+    money: 500, // Démarrage avec peu d'argent
   },
   score: 0,
-};
+  environmentalScore: 0,
+  maxSlots: 6, // Commencer avec 6 emplacements seulement
+});
 
 // Coûts et prix
 const COSTS = {
-  seed: 100,
+  seed: 50,
   water: 0, // Gratuit mais limité
-  fertilizer: 50,
-  waterRefill: 200, // Acheter 500L d'eau
-  fertilizerBag: 300, // Acheter 50kg d'engrais
+  fertilizer: 25,
+  waterRefill: 150, // Acheter 500L d'eau
+  fertilizerBag: 200, // Acheter 50kg d'engrais
+  slotExpansion: 300, // Acheter un emplacement supplémentaire
 };
 
 const CROP_VALUES = {
@@ -36,64 +37,138 @@ const CROP_VALUES = {
   rice: 220,
   tomato: 250,
   potato: 170,
+  cactus: 300,
+  palm: 400,
+  bamboo: 350,
 };
 
-export function useGameState() {
-  const [gameState, setGameState] = useState<GameState>({
-    currentFarm: INITIAL_FARM,
-    day: 1,
-    season: 'spring',
-    weather: {
-      temperature: 20,
-      precipitation: 0,
-      humidity: 60,
-      windSpeed: 5,
-      soilMoisture: 0.5,
-      forecast: [],
-    },
-    tutorial: true,
-    achievements: [],
+export function useGameState(initialLocation?: Location) {
+  const [gameState, setGameState] = useState<GameState>(() => {
+    if (!initialLocation) {
+      // Fallback temporaire
+      return {
+        currentFarm: createInitialFarm({
+          id: 'temp',
+          name: 'Default Location',
+          country: 'USA',
+          lat: 40.7128,
+          lon: -74.0060,
+          climate: 'temperate',
+          difficulty: 'easy',
+          description: 'Temporary location',
+        }),
+        day: 1,
+        season: 'spring',
+        weather: {
+          temperature: 20,
+          precipitation: 0,
+          humidity: 60,
+          windSpeed: 5,
+          soilMoisture: 0.5,
+          forecast: [],
+        },
+        tutorial: true,
+        achievements: [],
+      };
+    }
+
+    return {
+      currentFarm: createInitialFarm(initialLocation),
+      day: 1,
+      season: 'spring',
+      weather: {
+        temperature: 20,
+        precipitation: 0,
+        humidity: 60,
+        windSpeed: 5,
+        soilMoisture: 0.5,
+        forecast: [],
+      },
+      tutorial: true,
+      achievements: [],
+    };
   });
 
-  // Progression automatique du jeu - toutes les 3 secondes
+  const initializeGame = (location: Location) => {
+    setGameState({
+      currentFarm: createInitialFarm(location),
+      day: 1,
+      season: 'spring',
+      weather: {
+        temperature: 20,
+        precipitation: 0,
+        humidity: 60,
+        windSpeed: 5,
+        soilMoisture: 0.5,
+        forecast: [],
+      },
+      tutorial: true,
+      achievements: [],
+    });
+  };
+
+  // Progression automatique du jeu - toutes les 30 secondes (1 jour de jeu)
   useEffect(() => {
     const interval = setInterval(() => {
       setGameState((prev) => {
         const newCrops = prev.currentFarm.crops.map((crop) => {
+          const cropData = CROP_DATA[crop.type];
+          const climate = prev.currentFarm.location.climate;
+
           let newHealth = crop.health;
-          let newWaterLevel = crop.waterLevel - 8; // Consommation d'eau plus rapide
-          let newFertilization = crop.fertilizationLevel - 2;
+          let newWaterLevel = crop.waterLevel - 2; // Consommation lente
+          let newFertilization = crop.fertilizationLevel - 0.5;
           let newGrowthStage = crop.growthStage;
           let pointsEarned = 0;
 
-          // Perte de santé si manque d'eau
-          if (newWaterLevel < 30) {
-            newHealth -= 5;
+          // Perte de santé GRADUELLE si manque d'eau
+          if (newWaterLevel < 20) {
+            newHealth -= 3;
             pointsEarned -= 2;
+          } else if (newWaterLevel < 40) {
+            newHealth -= 1;
           }
 
-          // Perte de santé si manque d'engrais
-          if (newFertilization < 20) {
-            newHealth -= 3;
+          // Perte de santé GRADUELLE si manque d'engrais
+          if (newFertilization < 10) {
+            newHealth -= 2;
+          } else if (newFertilization < 30) {
+            newHealth -= 0.5;
           }
+
+          // Impact du climat sur la santé selon résistance de la plante
+          let climateHealthImpact = 0;
+          if (climate === 'arid' && prev.weather.temperature > 30) {
+            climateHealthImpact = -(1 - cropData.climateResistance.arid) * 5;
+          } else if (climate === 'cold' && prev.weather.temperature < 10) {
+            climateHealthImpact = -(1 - cropData.climateResistance.cold) * 4;
+          } else if (climate === 'tropical' && prev.weather.humidity > 80) {
+            climateHealthImpact = -(1 - cropData.climateResistance.humidity) * 2;
+          }
+
+          newHealth += climateHealthImpact;
 
           // Croissance optimale si bonnes conditions
+          const growthMultiplier = cropData.growthSpeed * 0.5;
           if (crop.waterLevel > 50 && crop.fertilizationLevel > 40 && crop.health > 70) {
-            newGrowthStage = Math.min(100, newGrowthStage + 3);
+            newGrowthStage = Math.min(100, newGrowthStage + 2 * growthMultiplier);
             pointsEarned += 1;
-          } else if (crop.waterLevel > 30 && crop.fertilizationLevel > 20) {
-            newGrowthStage = Math.min(100, newGrowthStage + 1);
+          } else if (crop.waterLevel > 30 && crop.fertilizationLevel > 20 && crop.health > 50) {
+            newGrowthStage = Math.min(100, newGrowthStage + 1 * growthMultiplier);
+          } else if (crop.health > 30) {
+            newGrowthStage = Math.min(100, newGrowthStage + 0.5 * growthMultiplier);
           }
 
           // Impact de la météo
           if (prev.weather.precipitation > 0) {
-            newWaterLevel = Math.min(100, newWaterLevel + prev.weather.precipitation * 2);
+            newWaterLevel = Math.min(100, newWaterLevel + prev.weather.precipitation * 3);
             pointsEarned += 1;
           }
 
-          // Impact de la température
-          if (prev.weather.temperature > 30 || prev.weather.temperature < 10) {
-            newHealth -= 2; // Températures extrêmes
+          // Impact de la température (moins sévère)
+          if (prev.weather.temperature > 35 || prev.weather.temperature < 5) {
+            const heatResistance = prev.weather.temperature > 35 ? cropData.climateResistance.heat : cropData.climateResistance.cold;
+            newHealth -= (1 - heatResistance) * 2;
           }
 
           return {
@@ -103,14 +178,39 @@ export function useGameState() {
             fertilizationLevel: Math.max(0, newFertilization),
             growthStage: newGrowthStage,
           };
-        });
+        }).filter(crop => crop.health > 0); // MORT DES PLANTES: Retirer les plantes avec santé = 0
 
-        // Calculer les points gagnés ce tour
+        // Calculer les points et revenus passifs
         const pointsThisTurn = newCrops.reduce((acc, crop) => {
-          if (crop.health > 80 && crop.growthStage > 50) return acc + 2;
+          if (crop.health > 80 && crop.growthStage > 50) return acc + 3;
           if (crop.health > 50) return acc + 1;
           return acc;
         }, 0);
+
+        // Revenu passif: +$5 par plante en bonne santé (réduit)
+        const passiveIncome = newCrops.filter(c => c.health > 60).length * 5;
+
+        // Revenu quotidien fixe basé sur le jour (plus on avance, plus on gagne)
+        const dailyIncome = Math.floor(prev.day / 5) * 10; // +$10 tous les 5 jours
+
+        // SCORE ENVIRONNEMENTAL: Contribution de chaque plante
+        const environmentalContribution = newCrops.reduce((acc, crop) => {
+          const cropData = CROP_DATA[crop.type];
+          const healthFactor = crop.health / 100; // 0-1
+          const growthFactor = crop.growthStage / 100; // 0-1
+          const contribution = cropData.environmentalContribution * healthFactor * growthFactor;
+          return acc + contribution;
+        }, 0);
+
+        // Score environnemental plafonné à 100%
+        const maxEnvironmentalScore = 12 * 10; // 12 slots * contribution max de 10
+        const newEnvironmentalScore = Math.min(
+          100,
+          (environmentalContribution / maxEnvironmentalScore) * 100
+        );
+
+        // Bonus argent basé sur le score environnemental (réduit)
+        const environmentalBonus = Math.floor(newEnvironmentalScore * 0.5);
 
         return {
           ...prev,
@@ -119,10 +219,15 @@ export function useGameState() {
             ...prev.currentFarm,
             crops: newCrops,
             score: prev.currentFarm.score + pointsThisTurn,
+            environmentalScore: newEnvironmentalScore,
+            resources: {
+              ...prev.currentFarm.resources,
+              money: prev.currentFarm.resources.money + passiveIncome + dailyIncome + environmentalBonus,
+            },
           },
         };
       });
-    }, 3000); // Update toutes les 3 secondes
+    }, 30000); // Update toutes les 30 secondes = 1 jour de jeu
 
     return () => clearInterval(interval);
   }, []);
@@ -168,10 +273,20 @@ export function useGameState() {
 
         case 'plant':
           if (newResources.seeds >= 1 && newResources.money >= COSTS.seed && action.cropType) {
+            // Find the next available slot (0-11)
+            const usedSlots = newFarm.crops.map(c => parseInt(c.id.split('-')[1]));
+            let slotId = 0;
+            for (let i = 0; i < 12; i++) {
+              if (!usedSlots.includes(i)) {
+                slotId = i;
+                break;
+              }
+            }
+
             newResources.seeds -= 1;
             newResources.money -= COSTS.seed;
             const newCrop: Crop = {
-              id: `crop-${Date.now()}`,
+              id: `slot-${slotId}`,
               type: action.cropType,
               planted: new Date(),
               health: 100,
@@ -215,6 +330,9 @@ export function useGameState() {
           } else if (action.amount && action.target === 'seeds' && newResources.money >= 200) {
             newResources.money -= 200;
             newResources.seeds += 5;
+          } else if (action.target === 'slot' && newResources.money >= COSTS.slotExpansion && newFarm.maxSlots < 24) {
+            newResources.money -= COSTS.slotExpansion;
+            newFarm.maxSlots += 2; // Ajouter 2 emplacements à la fois
           }
           break;
       }
@@ -252,6 +370,7 @@ export function useGameState() {
   return {
     gameState,
     setGameState,
+    initializeGame,
     plantCrop,
     irrigateCrop,
     fertilizeCrop,
@@ -260,5 +379,6 @@ export function useGameState() {
     performAction,
     costs: COSTS,
     cropValues: CROP_VALUES,
+    cropData: CROP_DATA,
   };
 }

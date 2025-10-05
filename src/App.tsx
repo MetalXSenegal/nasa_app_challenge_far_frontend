@@ -2,26 +2,32 @@ import { useState, useEffect } from 'react';
 import './App.css';
 import { useGameState } from './hooks/useGameState';
 import { WeatherWidget } from './components/WeatherWidget';
-import { SatelliteView } from './components/SatelliteView';
+import { FarmGrid } from './components/FarmGrid';
+import { LocationSelector } from './components/LocationSelector';
+import { DayClock } from './components/DayClock';
 import { CropCard } from './components/CropCard';
 import { ResourcesPanel } from './components/ResourcesPanel';
 import { AuthModal } from './components/AuthModal';
 import { Leaderboard } from './components/Leaderboard';
+import { LandingPage } from './components/LandingPage';
 import { authAPI, gameAPI } from './services/api';
-import type { CropType } from './types/game';
+import type { CropType, Location } from './types/game';
 
 function App() {
-  const { gameState, plantCrop, irrigateCrop, fertilizeCrop, harvestCrop, buyResource, costs, cropValues, setGameState } = useGameState();
+  const { gameState, initializeGame, plantCrop, irrigateCrop, fertilizeCrop, harvestCrop, buyResource, costs, cropValues, cropData, setGameState } = useGameState();
   const [selectedCrop, setSelectedCrop] = useState<string | null>(null);
+  const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
   const [showPlantModal, setShowPlantModal] = useState(false);
   const [showShopModal, setShowShopModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showLocationSelector, setShowLocationSelector] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [showGame, setShowGame] = useState(false);
 
-  const cropTypes: CropType[] = ['wheat', 'corn', 'soybean', 'rice', 'tomato', 'potato'];
+  const cropTypes: CropType[] = ['wheat', 'corn', 'soybean', 'rice', 'tomato', 'potato', 'cactus', 'palm', 'bamboo'];
 
   // Vérifier l'authentification au chargement
   useEffect(() => {
@@ -30,8 +36,9 @@ function App() {
     setIsAuthenticated(authenticated);
     setCurrentUser(user);
 
-    // Charger la partie sauvegardée si connecté
+    // Si déjà connecté, aller directement au jeu
     if (authenticated) {
+      setShowGame(true);
       loadGame();
     }
   }, []);
@@ -85,8 +92,20 @@ function App() {
     setShowAuthModal(false);
     setIsAuthenticated(true);
     setCurrentUser(authAPI.getCurrentUser());
-    showNotification('✅ Connexion réussie!');
+    setShowGame(true);
+    showNotification('✅ Login successful!');
     loadGame();
+  };
+
+  const handleStartGame = () => {
+    setShowLocationSelector(true);
+  };
+
+  const handleLocationSelect = (location: Location) => {
+    initializeGame(location);
+    setShowLocationSelector(false);
+    setShowGame(true);
+    showNotification(`🌍 Mission started in ${location.name}!`);
   };
 
   const handleLogout = () => {
@@ -96,10 +115,16 @@ function App() {
     showNotification('👋 Déconnecté');
   };
 
+  const handlePlantSlot = (position: number) => {
+    setSelectedSlot(position);
+    setShowPlantModal(true);
+  };
+
   const handlePlantCrop = (cropType: CropType) => {
     if (gameState.currentFarm.resources.money >= costs.seed && gameState.currentFarm.resources.seeds >= 1) {
       plantCrop(cropType);
       setShowPlantModal(false);
+      setSelectedSlot(null);
       showNotification(`✅ ${cropType} planté! -$${costs.seed}`);
     } else {
       showNotification('❌ Pas assez d\'argent ou de graines!');
@@ -145,6 +170,16 @@ function App() {
     }
   };
 
+  // Afficher le sélecteur de localité
+  if (showLocationSelector) {
+    return <LocationSelector onSelect={handleLocationSelect} />;
+  }
+
+  // Afficher la landing page si pas encore démarré
+  if (!showGame) {
+    return <LandingPage onStart={handleStartGame} />;
+  }
+
   return (
     <div className="app">
       {/* Header */}
@@ -157,13 +192,17 @@ function App() {
               <span>{currentUser?.username}</span>
             </div>
           )}
-          <div className="stat-item">
-            <span className="stat-icon">📅</span>
-            <span>Jour {gameState.day}</span>
+          <div className="stat-item" style={{ background: 'linear-gradient(135deg, #ffd700 0%, #ffa500 100%)', color: '#1a1a1a' }}>
+            <span className="stat-icon">💰</span>
+            <span>${gameState.currentFarm.resources.money.toLocaleString()}</span>
+          </div>
+          <div className="stat-item" style={{ background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)', color: '#1a1a1a' }}>
+            <span className="stat-icon">🌱</span>
+            <span>{Math.round(gameState.currentFarm.environmentalScore)}%</span>
           </div>
           <div className="stat-item">
-            <span className="stat-icon">🌸</span>
-            <span>{gameState.season}</span>
+            <span className="stat-icon">📅</span>
+            <span>Day {gameState.day}</span>
           </div>
           <div className="stat-item">
             <span className="stat-icon">⭐</span>
@@ -217,15 +256,6 @@ function App() {
           <div className="action-buttons">
             <button
               className="action-btn"
-              onClick={() => setShowPlantModal(true)}
-              disabled={gameState.currentFarm.resources.seeds < 1 || gameState.currentFarm.resources.money < costs.seed}
-            >
-              <span>🌱</span>
-              Planter (-${costs.seed})
-            </button>
-
-            <button
-              className="action-btn"
               disabled={!selectedCrop || gameState.currentFarm.resources.water < 50}
               onClick={handleIrrigate}
             >
@@ -267,52 +297,36 @@ function App() {
           </div>
 
           <div style={{ marginTop: '2rem', padding: '1rem', background: 'rgba(255,255,255,0.1)', borderRadius: '10px' }}>
-            <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem', color: '#ffd700' }}>💡 Conseils</h3>
-            <p style={{ fontSize: '0.85rem', lineHeight: '1.4' }}>
-              Utilisez les données météo NASA pour optimiser vos cultures.
-              Surveillez l'humidité du sol et la température!
-            </p>
+            <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem', color: '#ffd700' }}>💡 Comment jouer</h3>
+            <ul style={{ fontSize: '0.85rem', lineHeight: '1.6', paddingLeft: '1.2rem', margin: 0 }}>
+              <li>Cliquez sur un emplacement vide 🌱 pour planter</li>
+              <li>Sélectionnez une plante pour l'arroser/fertiliser</li>
+              <li>Récoltez quand la croissance atteint 90%+</li>
+              <li>Surveillez la météo NASA en temps réel!</li>
+            </ul>
           </div>
         </aside>
 
         {/* Zone de jeu centrale */}
         <main className="game-area">
-          <SatelliteView
-            lat={gameState.currentFarm.location.lat}
-            lon={gameState.currentFarm.location.lon}
+          <FarmGrid
+            crops={gameState.currentFarm.crops}
+            onSelectCrop={setSelectedCrop}
+            onPlantSlot={handlePlantSlot}
+            selectedCropId={selectedCrop}
+            maxSlots={gameState.currentFarm.maxSlots}
           />
-
-          <div>
-            <h2 style={{ marginBottom: '1rem', color: '#ffd700' }}>
-              Mes cultures ({gameState.currentFarm.crops.length})
-            </h2>
-            {gameState.currentFarm.crops.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '3rem', opacity: 0.7 }}>
-                <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🌱</div>
-                <div>Aucune culture pour le moment</div>
-                <div style={{ fontSize: '0.9rem', marginTop: '0.5rem' }}>
-                  Cliquez sur "Planter une culture" pour commencer
-                </div>
-              </div>
-            ) : (
-              <div className="farm-grid">
-                {gameState.currentFarm.crops.map((crop) => (
-                  <CropCard
-                    key={crop.id}
-                    crop={crop}
-                    onClick={() => setSelectedCrop(crop.id)}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
         </main>
 
         {/* Panneau d'information droit */}
         <aside className="info-panel">
+          {/* Horloge du jour */}
+          <DayClock gameDay={gameState.day} />
+
           <WeatherWidget
             lat={gameState.currentFarm.location.lat}
             lon={gameState.currentFarm.location.lon}
+            locationName={gameState.currentFarm.location.name}
           />
 
           <ResourcesPanel resources={gameState.currentFarm.resources} />
@@ -386,19 +400,32 @@ function App() {
               Coût: ${costs.seed} par graine
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              {cropTypes.map((type) => (
-                <button
-                  key={type}
-                  className="btn btn-primary"
-                  onClick={() => handlePlantCrop(type)}
-                  style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}
-                >
-                  <div>{type.charAt(0).toUpperCase() + type.slice(1)}</div>
-                  <div style={{ fontSize: '0.8rem', opacity: 0.8 }}>
-                    Valeur: ${cropValues[type]}
-                  </div>
-                </button>
-              ))}
+              {cropTypes.map((type) => {
+                const data = cropData[type];
+                return (
+                  <button
+                    key={type}
+                    className="btn btn-primary"
+                    onClick={() => handlePlantCrop(type)}
+                    style={{
+                      padding: '1rem',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.3rem',
+                      textAlign: 'left'
+                    }}
+                  >
+                    <div style={{ fontSize: '2rem', textAlign: 'center' }}>{data.emoji}</div>
+                    <div style={{ fontWeight: 'bold' }}>{data.name}</div>
+                    <div style={{ fontSize: '0.75rem', opacity: 0.8 }}>
+                      💰 ${cropValues[type]} | 🌱 +{data.environmentalContribution}
+                    </div>
+                    <div style={{ fontSize: '0.7rem', opacity: 0.7 }}>
+                      Speed: {'⚡'.repeat(data.growthSpeed)}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
             <div className="modal-buttons">
               <button className="btn btn-secondary" onClick={() => setShowPlantModal(false)}>
@@ -433,9 +460,13 @@ function App() {
                 </div>
                 <button
                   className="btn btn-primary"
-                  onClick={() => {
-                    buyResource('water');
-                    showNotification('💧 Eau achetée! +500L');
+                  onClick={(e) => {
+                    e.currentTarget.disabled = true;
+                    if (gameState.currentFarm.resources.money >= costs.waterRefill) {
+                      buyResource('water');
+                      showNotification('💧 Eau achetée! +500L');
+                      setTimeout(() => { e.currentTarget.disabled = false; }, 500);
+                    }
                   }}
                   disabled={gameState.currentFarm.resources.money < costs.waterRefill}
                 >
@@ -457,9 +488,13 @@ function App() {
                 </div>
                 <button
                   className="btn btn-primary"
-                  onClick={() => {
-                    buyResource('fertilizer');
-                    showNotification('🧪 Engrais acheté! +50kg');
+                  onClick={(e) => {
+                    e.currentTarget.disabled = true;
+                    if (gameState.currentFarm.resources.money >= costs.fertilizerBag) {
+                      buyResource('fertilizer');
+                      showNotification('🧪 Engrais acheté! +50kg');
+                      setTimeout(() => { e.currentTarget.disabled = false; }, 500);
+                    }
                   }}
                   disabled={gameState.currentFarm.resources.money < costs.fertilizerBag}
                 >
@@ -481,15 +516,53 @@ function App() {
                 </div>
                 <button
                   className="btn btn-primary"
-                  onClick={() => {
-                    buyResource('seeds');
-                    showNotification('🌱 Graines achetées! +5');
+                  onClick={(e) => {
+                    e.currentTarget.disabled = true;
+                    if (gameState.currentFarm.resources.money >= 200) {
+                      buyResource('seeds');
+                      showNotification('🌱 Graines achetées! +5');
+                      setTimeout(() => { e.currentTarget.disabled = false; }, 500);
+                    }
                   }}
                   disabled={gameState.currentFarm.resources.money < 200}
                 >
                   Acheter
                 </button>
               </div>
+
+              {/* Achat d'emplacements */}
+              {gameState.currentFarm.maxSlots < 24 && (
+                <div style={{
+                  background: 'rgba(255,215,0,0.2)',
+                  padding: '1rem',
+                  borderRadius: '10px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  border: '2px solid rgba(255,215,0,0.4)'
+                }}>
+                  <div>
+                    <div style={{ fontWeight: 'bold' }}>🏗️ Expansion (+2 emplacements)</div>
+                    <div style={{ fontSize: '0.85rem', opacity: 0.8 }}>
+                      ${costs.slotExpansion} | {gameState.currentFarm.maxSlots}/24 emplacements
+                    </div>
+                  </div>
+                  <button
+                    className="btn btn-primary"
+                    onClick={(e) => {
+                      e.currentTarget.disabled = true;
+                      if (gameState.currentFarm.resources.money >= costs.slotExpansion && gameState.currentFarm.maxSlots < 24) {
+                        buyResource('slot');
+                        showNotification('🏗️ +2 emplacements! Total: ' + (gameState.currentFarm.maxSlots + 2));
+                        setTimeout(() => { e.currentTarget.disabled = false; }, 500);
+                      }
+                    }}
+                    disabled={gameState.currentFarm.resources.money < costs.slotExpansion}
+                  >
+                    Acheter
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="modal-buttons">
