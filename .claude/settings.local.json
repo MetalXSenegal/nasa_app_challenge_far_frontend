@@ -3,7 +3,12 @@
     "allow": [
       "Bash(npm install:*)",
       "WebFetch(domain:swagger-ui.meteomatics.com)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(if [ -f .gitignore ])",
+      "Bash(then cat .gitignore)",
+      "Bash(else echo \"No .gitignore found\")",
+      "Bash(fi)",
+      "Read(//c/Users/Acer_M/Documents/devellopement/metalx/nasa_app_backend/**)"
     ],
     "deny": [],
     "ask": []

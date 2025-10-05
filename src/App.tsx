@@ -5,6 +5,7 @@ import { WeatherWidget } from './components/WeatherWidget';
 import { FarmGrid } from './components/FarmGrid';
 import { LocationSelector } from './components/LocationSelector';
 import { DayClock } from './components/DayClock';
+import { GameOver } from './components/GameOver';
 import { CropCard } from './components/CropCard';
 import { ResourcesPanel } from './components/ResourcesPanel';
 import { AuthModal } from './components/AuthModal';
@@ -108,6 +109,18 @@ function App() {
     showNotification(`🌍 Mission started in ${location.name}!`);
   };
 
+  const handleRestart = () => {
+    setShowLocationSelector(true);
+    setShowGame(false);
+    setSelectedCrop(null);
+  };
+
+  const handleMainMenu = () => {
+    setShowGame(false);
+    setShowLocationSelector(false);
+    setSelectedCrop(null);
+  };
+
   const handleLogout = () => {
     authAPI.logout();
     setIsAuthenticated(false);
@@ -178,6 +191,24 @@ function App() {
   // Afficher la landing page si pas encore démarré
   if (!showGame) {
     return <LandingPage onStart={handleStartGame} />;
+  }
+
+  // Afficher l'écran de Game Over si victoire ou défaite
+  if (gameState.gameStatus !== 'playing' && showGame) {
+    return (
+      <GameOver
+        isVictory={gameState.gameStatus === 'won'}
+        stats={{
+          day: gameState.day,
+          score: gameState.currentFarm.score,
+          environmentalScore: gameState.currentFarm.environmentalScore,
+          money: gameState.currentFarm.resources.money,
+          cropsHarvested: 0, // TODO: tracker les récoltes
+        }}
+        onRestart={handleRestart}
+        onMainMenu={handleMainMenu}
+      />
+    );
   }
 
   return (

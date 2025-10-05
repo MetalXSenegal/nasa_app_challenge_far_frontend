@@ -82,6 +82,7 @@ export interface GameState {
   weather: WeatherCondition;
   tutorial: boolean;
   achievements: Achievement[];
+  gameStatus: 'playing' | 'won' | 'lost';
 }
 
 export type Season = 'spring' | 'summer' | 'fall' | 'winter';

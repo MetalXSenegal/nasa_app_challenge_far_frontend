@@ -86,6 +86,7 @@ export function useGameState(initialLocation?: Location) {
       },
       tutorial: true,
       achievements: [],
+      gameStatus: 'playing',
     };
   });
 
@@ -104,6 +105,7 @@ export function useGameState(initialLocation?: Location) {
       },
       tutorial: true,
       achievements: [],
+      gameStatus: 'playing',
     });
   };
 
@@ -212,9 +214,30 @@ export function useGameState(initialLocation?: Location) {
         // Bonus argent basé sur le score environnemental (réduit)
         const environmentalBonus = Math.floor(newEnvironmentalScore * 0.5);
 
+        const newMoney = prev.currentFarm.resources.money + passiveIncome + dailyIncome + environmentalBonus;
+
+        // CONDITIONS DE JEU
+        let newGameStatus: 'playing' | 'won' | 'lost' = prev.gameStatus;
+
+        // VICTOIRE: Score environnemental à 100%
+        if (newEnvironmentalScore >= 100 && prev.gameStatus === 'playing') {
+          newGameStatus = 'won';
+        }
+
+        // DÉFAITE: Argent négatif ET pas de plantes vivantes
+        if (newMoney < 0 && newCrops.length === 0 && prev.gameStatus === 'playing') {
+          newGameStatus = 'lost';
+        }
+
+        // DÉFAITE: Aucune plante pendant 10 jours ET argent < 100
+        if (newCrops.length === 0 && newMoney < 100 && prev.day > 10 && prev.gameStatus === 'playing') {
+          newGameStatus = 'lost';
+        }
+
         return {
           ...prev,
           day: prev.day + 1,
+          gameStatus: newGameStatus,
           currentFarm: {
             ...prev.currentFarm,
             crops: newCrops,
@@ -222,7 +245,7 @@ export function useGameState(initialLocation?: Location) {
             environmentalScore: newEnvironmentalScore,
             resources: {
               ...prev.currentFarm.resources,
-              money: prev.currentFarm.resources.money + passiveIncome + dailyIncome + environmentalBonus,
+              money: newMoney,
             },
           },
         };
