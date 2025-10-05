@@ -7,12 +7,12 @@ interface ResourcesPanelProps {
 export function ResourcesPanel({ resources }: ResourcesPanelProps) {
   return (
     <div className="resources-panel">
-      <h3 style={{ marginBottom: '1rem', color: '#ffd700' }}>Ressources</h3>
+      <h3 style={{ marginBottom: '1rem', color: '#ffd700' }}>Resources</h3>
 
       <div className="resource-item">
         <div className="resource-label">
           <span>💰</span>
-          <span>Argent</span>
+          <span>Money</span>
         </div>
         <strong>${resources.money.toLocaleString()}</strong>
       </div>
@@ -20,7 +20,7 @@ export function ResourcesPanel({ resources }: ResourcesPanelProps) {
       <div className="resource-item">
         <div className="resource-label">
           <span>💧</span>
-          <span>Eau</span>
+          <span>Water</span>
         </div>
         <div style={{ flex: 1, marginLeft: '1rem' }}>
           <div className="progress-bar">
@@ -37,7 +37,7 @@ export function ResourcesPanel({ resources }: ResourcesPanelProps) {
       <div className="resource-item">
         <div className="resource-label">
           <span>🧪</span>
-          <span>Engrais</span>
+          <span>Fertilizer</span>
         </div>
         <strong>{resources.fertilizer} kg</strong>
       </div>
@@ -45,7 +45,7 @@ export function ResourcesPanel({ resources }: ResourcesPanelProps) {
       <div className="resource-item">
         <div className="resource-label">
           <span>🌱</span>
-          <span>Graines</span>
+          <span>Seeds</span>
         </div>
         <strong>{resources.seeds}</strong>
       </div>
@@ -53,7 +53,7 @@ export function ResourcesPanel({ resources }: ResourcesPanelProps) {
       <div className="resource-item">
         <div className="resource-label">
           <span>🌾</span>
-          <span>Nourriture</span>
+          <span>Food</span>
         </div>
         <strong>{resources.feed} kg</strong>
       </div>
